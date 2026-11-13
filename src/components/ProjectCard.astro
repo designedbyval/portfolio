@@ -1,0 +1,74 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { resolveColor } from '../data/site';
+
+interface Props {
+  project: CollectionEntry<'work'>;
+}
+
+const { project } = Astro.props;
+const { title, year, cardColor } = project.data;
+---
+
+<a class="card" href={`/work/${project.id}`} style={`--card-bg:${resolveColor(cardColor)}`}>
+  <span class="meta">
+    <span class="year">{year}</span>
+    <span class="title mono">{title}</span>
+  </span>
+</a>
+
+<style>
+  /* Figma: radius 40, p 40, content bottom-left; year Inter Light 20, name Intel One Mono 20 */
+  .card {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    width: 100%;
+    height: var(--card-h, 400px);
+    padding: var(--space-5);
+    border-radius: var(--radius-card);
+    background: var(--card-bg);
+    color: var(--color-ink);
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px -8px rgb(0 0 0 / 0.3);
+  }
+
+  .card:focus-visible {
+    outline-offset: 4px;
+    border-radius: var(--radius-card);
+  }
+
+  .meta {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .year {
+    font-weight: 300;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card {
+      transition: box-shadow 180ms ease;
+    }
+
+    .card:hover {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 599px) {
+    .card {
+      padding: var(--space-3);
+      border-radius: var(--space-4);
+    }
+  }
+</style>

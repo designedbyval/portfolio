@@ -1,0 +1,75 @@
+---
+/**
+ * Cycles through coloured words inline with a headline (Figma "UI" and
+ * "feel human" component sets). An invisible sizer holds the first word in the
+ * text flow, so every variant shares the headline's baseline and the line
+ * never reflows when a longer word appears — same as the fixed-size instance
+ * in Figma, where longer words overflow to the right.
+ */
+interface Word {
+  text: string;
+  color: string;
+}
+
+interface Props {
+  words: Word[];
+  interval?: number;
+}
+
+const { words, interval = 800 } = Astro.props;
+const list = words.map((w) => w.text.trim());
+const srText =
+  list.length > 1 ? `${list.slice(0, -1).join(', ')} and ${list[list.length - 1]}` : list[0];
+---
+
+<span class="cycling-word">
+  <span class="visually-hidden">{srText}</span>
+  <span class="sizer" aria-hidden="true">{words[0].text.trim()}</span>
+  <span class="frames" aria-hidden="true" data-cycle data-interval={interval}>
+    {
+      words.map((w, i) => (
+        <span data-cycle-frame data-active={i === 0 ? '' : undefined} style={`color:${w.color}`}>
+          {w.text.trim()}
+        </span>
+      ))
+    }
+  </span>
+</span>
+
+<script>
+  import '../scripts/cycle';
+</script>
+
+<style>
+  .cycling-word {
+    position: relative;
+    display: inline-block;
+    white-space: nowrap;
+  }
+
+  .sizer {
+    visibility: hidden;
+  }
+
+  .frames,
+  .frames > span {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  .frames > span {
+    visibility: hidden;
+  }
+
+  .frames > span[data-active] {
+    visibility: visible;
+  }
+
+  /* Tablet + mobile: give the word its own line so long variants never overflow the viewport */
+  @media (max-width: 1023px) {
+    .cycling-word {
+      display: block;
+    }
+  }
+</style>

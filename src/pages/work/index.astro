@@ -1,0 +1,31 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import ProjectGrid from '../../components/ProjectGrid.astro';
+
+// Every project, featured or not, sorted by `order`
+const projects = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<Base title="Work" current="work" description="All projects and case studies by Valencia John.">
+  <section class="work section" aria-labelledby="work-title">
+    <h1 id="work-title" class="mono">#01 All work</h1>
+    <ProjectGrid projects={projects} />
+  </section>
+</Base>
+
+<style>
+  .work {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-top: var(--space-5);
+    padding-bottom: var(--space-10);
+  }
+
+  @media (max-width: 1023px) {
+    .work {
+      padding-bottom: var(--space-8);
+    }
+  }
+</style>

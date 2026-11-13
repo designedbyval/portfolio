@@ -1,0 +1,267 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import InfoStrip from '../../components/InfoStrip.astro';
+import { resolveColor } from '../../data/site';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('work');
+  return projects.map((project) => ({ params: { slug: project.id }, props: { project } }));
+}
+
+interface Props {
+  project: CollectionEntry<'work'>;
+}
+
+const { project } = Astro.props;
+const { title, summary, role, timeline, tools, cardColor, cover, coverAlt } = project.data;
+const { Content, headings } = await render(project);
+
+// Contents sidebar = every "## Heading" in the Markdown
+const toc = headings.filter((h) => h.depth === 2);
+const toolsText = Array.isArray(tools) ? tools.join(', ') : tools;
+---
+
+<Base title={title} description={summary} current="work" footer={false}>
+  <article>
+    <header class="title section">
+      <h1 class="display">{title}</h1>
+    </header>
+
+    <div class="cover section">
+      <div class="cover-frame" style={`--cover-bg:${resolveColor(cardColor)}`}>
+        {
+          cover && (
+            <Image
+              src={cover}
+              alt={coverAlt ?? ''}
+              widths={[640, 1280, 2560]}
+              sizes="(max-width: 1440px) 92vw, 1280px"
+              loading="eager"
+            />
+          )
+        }
+      </div>
+    </div>
+
+    <InfoStrip
+      ariaLabel="Project details"
+      items={[
+        { dot: 'blue', label: 'Role', text: role },
+        { dot: 'pink', label: 'Timeline', text: timeline },
+        { dot: 'green', label: 'Tools', text: toolsText },
+      ]}
+    />
+
+    <div class="contents section">
+      <aside class="sidebar">
+        <a class="back" href="/#work" aria-label="Back to selected work">
+          <img src="/icons/arrow-left.svg" alt="" width="40" height="40" />
+        </a>
+        {
+          toc.length > 0 && (
+            <nav aria-label="Contents">
+              <ol class="toc" role="list">
+                {toc.map((h) => (
+                  <li>
+                    <a href={`#${h.slug}`}>{h.text}</a>
+                  </li>
+                ))}
+              </ol>
+            </nav>
+          )
+        }
+      </aside>
+      <div class="prose">
+        <Content />
+      </div>
+    </div>
+  </article>
+</Base>
+
+<style>
+  /* Figma Title: py 40, px 80 */
+  .title {
+    padding-block: var(--space-5);
+  }
+
+  /* Figma Cover: pb 64, px 80; block 560 tall, radius 40 */
+  .cover {
+    padding-bottom: var(--space-8);
+  }
+
+  .cover-frame {
+    height: 560px;
+    border-radius: var(--radius-card);
+    background: var(--cover-bg);
+    overflow: hidden;
+  }
+
+  .cover-frame :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Figma Contents: pt 64, pb 96, gap 24; list line-height 50 */
+  .contents {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: var(--space-6);
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-12);
+  }
+
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    position: sticky;
+    top: 104px;
+    align-self: start;
+  }
+
+  .back {
+    display: inline-flex;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition: transform 150ms ease;
+  }
+
+  .back:hover {
+    transform: translateX(-4px);
+  }
+
+  .toc a {
+    display: inline-block;
+    line-height: 50px;
+    text-decoration: none;
+  }
+
+  .toc a:hover {
+    text-decoration: underline;
+    text-underline-offset: 6px;
+  }
+
+  /* Markdown body */
+  .prose {
+    max-width: 760px;
+    line-height: 1.6;
+  }
+
+  .prose :global(> * + *) {
+    margin-top: var(--space-3);
+  }
+
+  .prose :global(h2) {
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1.25;
+    margin-top: var(--space-8);
+  }
+
+  .prose :global(h2:first-child) {
+    margin-top: 0;
+  }
+
+  .prose :global(h3) {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-top: var(--space-5);
+  }
+
+  .prose :global(h2 + *),
+  .prose :global(h3 + *) {
+    margin-top: var(--space-2);
+  }
+
+  .prose :global(strong) {
+    font-weight: 600;
+  }
+
+  .prose :global(img) {
+    width: 100%;
+    height: auto;
+    border-radius: var(--space-3);
+  }
+
+  .prose :global(ul),
+  .prose :global(ol) {
+    padding-left: var(--space-3);
+  }
+
+  .prose :global(li + li) {
+    margin-top: var(--space-1);
+  }
+
+  .prose :global(blockquote) {
+    margin-inline: 0;
+    padding-left: var(--space-3);
+    border-left: 4px solid var(--cover-accent, var(--color-blue));
+    font-weight: 400;
+  }
+
+  .prose :global(hr) {
+    border: 0;
+    border-top: 1px solid var(--color-line);
+    margin-block: var(--space-6);
+  }
+
+  .prose :global(a) {
+    text-underline-offset: 3px;
+  }
+
+  @media (max-width: 1023px) {
+    .cover-frame {
+      height: auto;
+      aspect-ratio: 16 / 9;
+    }
+
+    .contents {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-5);
+      padding-top: var(--space-6);
+      padding-bottom: var(--space-10);
+    }
+
+    .sidebar {
+      position: static;
+    }
+
+    .toc a {
+      line-height: 40px;
+    }
+  }
+
+  @media (max-width: 599px) {
+    .title {
+      padding-block: var(--space-3);
+    }
+
+    .cover {
+      padding-bottom: var(--space-5);
+    }
+
+    .cover-frame {
+      border-radius: var(--space-4);
+      aspect-ratio: 4 / 3;
+    }
+
+    .prose :global(h2) {
+      font-size: 24px;
+    }
+
+    .prose :global(h3) {
+      font-size: 20px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back:hover {
+      transform: none;
+    }
+  }
+</style>

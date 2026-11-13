@@ -1,0 +1,88 @@
+---
+/**
+ * Repeats the Figma "Selected work" pattern for any number of projects:
+ *   row A: wide + narrow card (400px tall, 784 : 472)
+ *   row B: two equal cards   (320px tall)
+ *   …A, B, A, B…
+ * An odd last card spans the full row.
+ */
+import type { CollectionEntry } from 'astro:content';
+import ProjectCard from './ProjectCard.astro';
+
+interface Props {
+  projects: CollectionEntry<'work'>[];
+}
+
+const { projects } = Astro.props;
+
+const rows: CollectionEntry<'work'>[][] = [];
+for (let i = 0; i < projects.length; i += 2) rows.push(projects.slice(i, i + 2));
+---
+
+<ul class="grid" role="list">
+  {
+    rows.map((row, r) => (
+      <li class:list={['row', r % 2 === 0 ? 'row--a' : 'row--b', row.length === 1 && 'row--single']}>
+        <ul class="row-inner" role="list">
+          {row.map((p) => (
+            <li>
+              <ProjectCard project={p} />
+            </li>
+          ))}
+        </ul>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    width: 100%;
+  }
+
+  .row-inner {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .row-inner > li {
+    display: flex;
+    min-width: 0;
+  }
+
+  .row--a .row-inner {
+    grid-template-columns: minmax(0, 784fr) minmax(0, 472fr);
+    --card-h: 400px;
+  }
+
+  .row--b .row-inner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    --card-h: 320px;
+  }
+
+  .row--single .row-inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Tablet + mobile: one card per row */
+  @media (max-width: 1023px) {
+    .grid,
+    .row-inner {
+      gap: var(--space-2);
+    }
+
+    .row .row-inner {
+      grid-template-columns: minmax(0, 1fr);
+      --card-h: 320px;
+    }
+  }
+
+  @media (max-width: 599px) {
+    .row .row-inner {
+      --card-h: 240px;
+    }
+  }
+</style>

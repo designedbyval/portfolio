@@ -1,0 +1,149 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Flipbook from '../components/Flipbook.astro';
+import CyclingWord from '../components/CyclingWord.astro';
+import InfoStrip from '../components/InfoStrip.astro';
+import ProjectGrid from '../components/ProjectGrid.astro';
+import { site } from '../data/site';
+
+const projects = (await getCollection('work', (p) => p.data.featured)).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+// Figma component set "UI" (40:425) — order + colours from the variants
+const words = [
+  { text: 'UI/UX', color: 'var(--color-blue)' },
+  { text: 'Marketing', color: 'var(--color-pink)' },
+  { text: 'Social Media', color: 'var(--color-green)' },
+  { text: 'Product', color: 'var(--color-blue)' },
+  { text: 'Illustration', color: 'var(--color-pink)' },
+  { text: 'Graphics', color: 'var(--color-green)' },
+];
+---
+
+<Base current="home">
+  <section class="hero section" aria-labelledby="hero-title">
+    <div class="intro">
+      <h1 id="hero-title" class="headline display">
+        <span class="display-light">Hey!</span><br />
+        I’m Valencia, a multidisciplinary designer tinkering in..<CyclingWord words={words} />
+      </h1>
+      <ul class="social" role="list">
+        <li>
+          <a href={`mailto:${site.email}`} aria-label={`Email ${site.email}`}>
+            <img src="/icons/mail-48.svg" alt="" width="48" height="48" />
+          </a>
+        </li>
+        <li>
+          <a href={site.linkedinUrl} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn profile (opens in a new tab)">
+            <img src="/icons/linkedin-48.svg" alt="" width="48" height="48" />
+          </a>
+        </li>
+      </ul>
+    </div>
+    <Flipbook
+      class="duck"
+      width={546}
+      height={380}
+      eager
+      label="Illustration of a duck in a blue cap typing on a laptop beside a pink bunny, with little flowers floating around them"
+      frames={[
+        { src: '/illustrations/duck-and-bunny-1.png', w: 546, h: 380 },
+        // Variant 2's rotated flower pokes 11.6px above the frame in Figma
+        { src: '/illustrations/duck-and-bunny-2.png', y: -11.6, w: 546, h: 392 },
+      ]}
+    />
+  </section>
+
+  <InfoStrip
+    ariaLabel="At a glance"
+    items={[
+      { dot: 'blue', label: 'Design intern', text: 'Prev. @Rechips.co & Smooji (HKSTP startups) & Dress Green' },
+      { dot: 'pink', label: 'Interaction design', text: '@The Hong Kong Polytechnic University' },
+      { dot: 'green', label: 'Summer 2027', text: 'Open for product design, social media, design marketing roles.' },
+    ]}
+  />
+
+  <section id="work" class="work section" aria-labelledby="work-title">
+    <h2 id="work-title" class="mono">#01 Selected work</h2>
+    <ProjectGrid projects={projects} />
+  </section>
+</Base>
+
+<style>
+  /* Figma Hero: pt 40, pb 56, px 80; Intro gap 32; Headline 624 wide */
+  .hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+    padding-top: var(--space-5);
+    padding-bottom: var(--space-7);
+  }
+
+  .intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+
+  .headline {
+    max-width: 624px;
+  }
+
+  .social {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .social a {
+    display: block;
+    border-radius: var(--space-1);
+    transition: transform 150ms ease;
+  }
+
+  .social a:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Figma Selected work: pt 64, pb 80, gap 24 */
+  .work {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-10);
+  }
+
+  @media (max-width: 1023px) {
+    .hero {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-6);
+    }
+
+    .hero :global(.duck) {
+      align-self: center;
+    }
+
+    .work {
+      padding-top: var(--space-6);
+      padding-bottom: var(--space-8);
+    }
+  }
+
+  @media (max-width: 599px) {
+    .hero {
+      padding-top: var(--space-3);
+      padding-bottom: var(--space-5);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .social a:hover {
+      transform: none;
+    }
+  }
+</style>

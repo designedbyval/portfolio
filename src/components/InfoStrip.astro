@@ -1,0 +1,79 @@
+---
+import Label from './Label.astro';
+
+interface Item {
+  label: string;
+  text: string;
+  dot: 'blue' | 'pink' | 'green' | 'yellow';
+}
+
+interface Props {
+  items: Item[];
+  ariaLabel?: string;
+}
+
+const { items, ariaLabel } = Astro.props;
+---
+
+<section class="info-strip" aria-label={ariaLabel}>
+  {
+    items.map((item) => (
+      <div class="cell">
+        <Label dot={item.dot} as="h2">
+          {item.label}
+        </Label>
+        <p>{item.text}</p>
+      </div>
+    ))
+  }
+</section>
+
+<style>
+  /* Figma: 1px black top/bottom border, 3 equal columns, py 32,
+     outer columns pad 80 to the page edge, inner pad 40, 1px dividers. */
+  .info-strip {
+    display: flex;
+    border-block: 1px solid var(--color-line);
+  }
+
+  .cell {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .cell + .cell {
+    border-left: 1px solid var(--color-line);
+  }
+
+  .cell:first-child {
+    padding-left: var(--gutter);
+  }
+
+  .cell:last-child {
+    padding-right: var(--gutter);
+  }
+
+  .cell :global(.label) {
+    font-size: inherit;
+  }
+
+  /* Tablet + mobile: stack columns */
+  @media (max-width: 1023px) {
+    .info-strip {
+      flex-direction: column;
+    }
+
+    .cell {
+      padding: var(--space-3) var(--gutter);
+    }
+
+    .cell + .cell {
+      border-left: 0;
+      border-top: 1px solid var(--color-line);
+    }
+  }
+</style>

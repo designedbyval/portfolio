@@ -1,0 +1,30 @@
+---
+/** Coloured 16px dot + Intel One Mono label (e.g. "● DESIGN INTERN"). */
+interface Props {
+  dot: 'blue' | 'pink' | 'green' | 'yellow';
+  as?: 'p' | 'h2' | 'h3';
+}
+
+const { dot, as: Tag = 'p' } = Astro.props;
+---
+
+<Tag class="label mono">
+  <span class="dot" style={`background: var(--color-${dot})`} aria-hidden="true"></span>
+  <slot />
+</Tag>
+
+<style>
+  .label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    white-space: nowrap;
+  }
+
+  .dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+</style>

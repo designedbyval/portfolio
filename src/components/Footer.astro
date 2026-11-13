@@ -1,0 +1,80 @@
+---
+import Flipbook from './Flipbook.astro';
+import { site } from '../data/site';
+
+interface Props {
+  /** Home and About use slightly different copy in Figma. */
+  invite?: string;
+}
+
+const { invite = 'Feel free to reach out for collaborations or work' } = Astro.props;
+---
+
+<footer class="footer">
+  <div class="sign-off">
+    <h2 class="display">Thanks for stopping by!</h2>
+    <div class="contact mono">
+      <p>{invite}</p>
+      <a href={`mailto:${site.email}`}>{site.email}</a>
+    </div>
+  </div>
+  <Flipbook
+    class="bunny"
+    width={532}
+    height={249}
+    label="A sleepy pink bunny lying down, blinking one eye open"
+    frames={[
+      { src: '/illustrations/bunny-1.png', w: 532, h: 249 },
+      // Variant 2 overflows its frame by ~7px (left -1.32%, top -6px) in Figma
+      { src: '/illustrations/bunny-2.png', x: -7.02, y: -6, w: 545, h: 262 },
+    ]}
+  />
+</footer>
+
+<style>
+  /* Figma: border-top 1px, px 80, py 64, space-between, centred */
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+    padding: var(--space-8) var(--gutter);
+    border-top: 1px solid var(--color-line);
+  }
+
+  .sign-off {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .contact {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .contact a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    word-break: break-all;
+  }
+
+  .contact a:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  @media (max-width: 1023px) {
+    .footer {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-5);
+    }
+
+    .footer :global(.bunny) {
+      align-self: center;
+    }
+  }
+</style>

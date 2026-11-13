@@ -1,0 +1,82 @@
+---
+/**
+ * Loops between illustration variants on a timer, like a flipbook.
+ * Each frame can overflow the component box (Figma exports include the overflow),
+ * so frames are positioned with percentage offsets relative to the base size.
+ */
+export interface Frame {
+  src: string;
+  /** Offset/size relative to the base box, in px at design size. */
+  x?: number;
+  y?: number;
+  w: number;
+  h: number;
+}
+
+interface Props {
+  frames: Frame[];
+  /** Component size in Figma (px). */
+  width: number;
+  height: number;
+  /** Accessible description of the illustration. */
+  label: string;
+  interval?: number;
+  eager?: boolean;
+  class?: string;
+}
+
+const { frames, width, height, label, interval = 800, eager = false, class: className } = Astro.props;
+const pct = (v: number, base: number) => `${((v / base) * 100).toFixed(4)}%`;
+---
+
+<div
+  class:list={['flipbook', className]}
+  style={`--fb-w:${width};--fb-h:${height};`}
+  role="img"
+  aria-label={label}
+  data-cycle
+  data-interval={interval}
+>
+  {
+    frames.map((f, i) => (
+      <img
+        data-cycle-frame
+        data-active={i === 0 ? '' : undefined}
+        src={f.src}
+        alt=""
+        width={f.w}
+        height={f.h}
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+        fetchpriority={eager && i === 0 ? 'high' : undefined}
+        style={`left:${pct(f.x ?? 0, width)};top:${pct(f.y ?? 0, height)};width:${pct(f.w, width)};height:${pct(f.h, height)};`}
+      />
+    ))
+  }
+</div>
+
+<script>
+  import '../scripts/cycle';
+</script>
+
+<style>
+  .flipbook {
+    position: relative;
+    width: calc(var(--fb-w) * 1px);
+    max-width: 100%;
+    aspect-ratio: var(--fb-w) / var(--fb-h);
+    flex-shrink: 0;
+  }
+
+  .flipbook img {
+    position: absolute;
+    max-width: none;
+    visibility: hidden;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .flipbook img[data-active] {
+    visibility: visible;
+  }
+</style>
