@@ -1,0 +1,20 @@
+{
+  "name": "valencia-portfolio",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@fontsource/intel-one-mono": "^5.3.0",
+    "@fontsource/inter": "^5.3.0",
+    "astro": "^7.4.11"
+  },
+  "engines": {
+    "node": ">=22.23.4"
+  }
+}
